@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="SCSilicon",
-    version="1.0.4",
+    version="1.0.5",
     author="Xikang Feng",
     author_email="fxk@nwpu.edu.cn",
     description="SCSilicon: a Python package that simulate single-cell DNA sequencing data.",
