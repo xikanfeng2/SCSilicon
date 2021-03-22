@@ -15,18 +15,18 @@ def download_ref_data(params):
     tasklogger.log_info('downloading reference files...')
     #download ref fasta
     url = 'http://hgdownload.soe.ucsc.edu/goldenPath/{0}/bigZips/{0}.fa.gz'.format(params.ref)
-    wget.download(url, ref_path)
+    wget.download(url, out=ref_path)
 
     command = 'gunzip ' + os.path.join(ref_path, params.ref + '.fa.gz')
     os.system(command)
 
     #download chrome size file
     url = 'http://hgdownload.soe.ucsc.edu/goldenPath/{0}/bigZips/{0}.chrom.sizes'.format(params.ref)
-    wget.download(url, ref_path)
+    wget.download(url, out=ref_path)
 
     #download dbsnp file
     url = 'http://hgdownload.soe.ucsc.edu/gbdb/{0}/snp/dbSnp153Common.bb'.format(params.ref)
-    wget.download(url, ref_path)
+    wget.download(url, out=ref_path)
 
 class SCSiliconParams:
 
