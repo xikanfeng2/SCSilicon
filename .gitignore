@@ -1,0 +1,6 @@
+src/scsilicon/__pycache__
+src/scsilicon/data/hg19
+src/scsilicon/lib
+SCSilicon.egg-info/
+build/
+dist/
