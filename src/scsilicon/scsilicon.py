@@ -25,8 +25,10 @@ def download_ref_data(params):
     wget.download(url, out=ref_path)
 
     #download dbsnp file
-    url = 'http://hgdownload.soe.ucsc.edu/gbdb/{0}/snp/dbSnp153Common.bb'.format(params.ref)
-    wget.download(url, out=ref_path)
+    command = 'curl -s http://hgdownload.cse.ucsc.edu/goldenPath/{0}/database/snp151Common.txt.gz'.format(params.ref) + ''' |zcat|grep -v "^#" | grep "single" | grep "exact" | awk '{print $5 "\t" $2 "\t" $3+1 "\t" $10 "\t" $7 "\t" $8}' > ''' + '{0}/dbsnp.{1}.bed'.format(ref_path, params.ref)
+    code = os.system(command)
+    if code != 0:
+        tasklogger.log_error('Errors happend when downloading dbsnp file...')
 
 class SCSiliconParams:
 
@@ -41,7 +43,7 @@ class SCSiliconParams:
         self.threads = threads
         self.ref_file = os.path.join(self.data_dir, self.ref, self.ref + '.fa')
         self.chrom_size_file = os.path.join(self.data_dir, self.ref, self.ref + '.chrom.sizes')
-        self.dbsnp_file = os.path.join(self.data_dir, self.ref, 'dbSnp153Common.bb')
+        self.dbsnp_file = os.path.join(self.data_dir, self.ref, 'dbsnp.'+ self.ref +'.bed')
         self.profile_file = os.path.join(utils.root_path(), 'data/normal.profile')
         self._check_params()
         tasklogger.set_level(verbose)
@@ -208,14 +210,7 @@ class SNPSimulator:
 
     def _generate_snp_file(self, params):
         tasklogger.log_info('start generating snp file...')
-        out_snp = os.path.join(params.data_dir, params.ref, 'snp.txt')
-        if not os.path.exists(out_snp):
-            shell_script = os.path.join(utils.root_path(), 'scripts/snpFilter.sh')
-            command = 'sh ' + shell_script + ' ' + params.dbsnp_file + ' ' + out_snp
-            code = os.system(command)
-            if code != 0:
-                tasklogger.log_error('Errors happend when generating snp file...')
-        all_snps = pd.read_csv(out_snp, header=None, sep='\t')
+        all_snps = pd.read_csv(params.dbsnp_file, header=None, sep='\t')
         if params.chrom != 'all':
             all_snps = all_snps[all_snps[1]==params.chrom]
 
