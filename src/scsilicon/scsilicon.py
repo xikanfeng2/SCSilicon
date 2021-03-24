@@ -216,13 +216,13 @@ class SNPSimulator:
             all_snps = all_snps[all_snps[1]==params.chrom]
 
         # randomm select some ratio snps
-        snps = all_snps.sample(self.snp_no * 1.2)
+        snps = all_snps.sample(n=int(self.snp_no * 1.2))
 
         #out snp file
         for sample in self.samples:
             snp_file =os.path.join(params.out_dir, sample + '-snps.txt')
             self.samples[sample]['snp_file'] = snp_file
-            sample_snp = snps.sample(self.snp_no)
+            sample_snp = snps.sample(n=self.snp_no)
             sample_snp.to_csv(snp_file, index=False, header=None, sep='\t')
     
     def _generate_reads_for_snp(self, params):
