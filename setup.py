@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="SCSilicon",
-    version="1.0.6",
+    version="1.0.7",
     author="Xikang Feng",
     author_email="fxk@nwpu.edu.cn",
     description="SCSilicon: a Python package that simulate single-cell DNA sequencing data.",
@@ -31,4 +31,6 @@ setuptools.setup(
         'seaborn>=0.11.1',
         'matplotlib>=3.0.2',
     ],
+    include_package_data=True,
+    package_data={'scsilicon': ['data/normal.profile']},
 )

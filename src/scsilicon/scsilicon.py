@@ -142,9 +142,9 @@ class SCSiliconParams:
 
 
 class SNPSimulator:
-    def __init__(self, sample_no=1, frac=0.01, verbose=1):
+    def __init__(self, sample_no=1, snp_no=1000, verbose=1):
         self.sample_no = sample_no
-        self.frac = frac
+        self.snp_no = snp_no
         self._check_params()
         self.samples = dict.fromkeys(['sample' + str(i+1) for i in range(self.sample_no)])
         for sample in self.samples:
@@ -165,7 +165,8 @@ class SNPSimulator:
         """
         utils.check_int(sample_no=self.sample_no)
         utils.check_positive(sample_no=self.sample_no)
-        utils.check_between(0,1,frac=self.frac)
+        utils.check_int(snp_no=self.snp_no)
+        utils.check_positive(snp_no=self.snp_no)
 
     def set_params(self, **params):
         """Set the parameters of SCSilicon.
@@ -179,8 +180,8 @@ class SNPSimulator:
         sample_no : int, optional, default: 1
             The sample number for this simulation
         
-        frac : float, optional, default: 0.01
-            The fraction of SNP extracted from dbsnp file
+        snp_no : int, optional, default: 1000
+            The SNP number of each sample
         
         verbose : `int` or `boolean`, optional, default: 1
             If `True` or `> 0`, print log messages
@@ -194,9 +195,9 @@ class SNPSimulator:
         if 'sample_no' in params and params['sample_no'] != self.sample_no:
             self.sample_no = params['sample_no']
             del params['sample_no']
-        if 'frac' in params and params['frac'] != self.frac:
-            self.frac = params['frac']
-            del params['frac']
+        if 'snp_no' in params and params['snp_no'] != self.snp_no:
+            self.snp_no = params['snp_no']
+            del params['snp_no']
         if 'verbose' in params:
             self.verbose = params['verbose']
             tasklogger.set_level(self.verbose)
@@ -215,37 +216,50 @@ class SNPSimulator:
             all_snps = all_snps[all_snps[1]==params.chrom]
 
         # randomm select some ratio snps
-        snps = all_snps.sample(frac=self.frac)
+        snps = all_snps.sample(self.snp_no * 1.2)
 
         #out snp file
         for sample in self.samples:
             snp_file =os.path.join(params.out_dir, sample + '-snps.txt')
             self.samples[sample]['snp_file'] = snp_file
-            sample_snp = snps.sample(frac=0.8)
+            sample_snp = snps.sample(self.snp_no)
             sample_snp.to_csv(snp_file, index=False, header=None, sep='\t')
     
-    def _sim_fasta_for_snps(self, params):
-        tasklogger.log_info('start generating fasta file...')
+    def _generate_reads_for_snp(self, params):
         for sample in self.samples:
+            tasklogger.log_info('start generating reads for '+sample+'...')
             fasta_file = os.path.join(params.out_dir, sample + '-ref.fasta')
-            self.samples[sample]['fasta_file'] = fasta_file
+            # self.samples[sample]['fasta_file'] = fasta_file
             command = 'scssim simuvars -r {0} -s {1} -o {2}'.format(params.ref_file, self.samples[sample]['snp_file'], fasta_file)
             code = os.system(command)
             if code != 0:
                 tasklogger.log_error('Errors happend when simulating varations with snp file...')
-    
-    def _generate_reads_for_snp(self, params):
-        tasklogger.log_info('start genrating reads with fastq format...')
-        for sample in self.samples:
+            
+            #generate reads
             out_prefix = os.path.join(params.out_dir, sample)
-            command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(self.samples[sample]['fasta_file'], params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
+            command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(fasta_file, params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
             code = os.system(command)
             if code != 0:
                 tasklogger.log_error('Errors happend when simulating reads...')
+            
+            # clean sample fasta file
+            os.remove(fasta_file)
+    
+    # def _generate_reads_for_snp(self, params):
+    #     tasklogger.log_info('start genrating reads with fastq format...')
+    #     for sample in self.samples:
+    #         out_prefix = os.path.join(params.out_dir, sample)
+    #         command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(self.samples[sample]['fasta_file'], params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
+    #         code = os.system(command)
+    #         if code != 0:
+    #             tasklogger.log_error('Errors happend when simulating reads...')
+            
+    #         # clean sample fasta file
+    #         os.remove(self.samples[sample]['fasta_file'])
 
     def sim_samples(self, params):
         self._generate_snp_file(params)
-        self._sim_fasta_for_snps(params)
+        # self._sim_fasta_for_snps(params)
         self._generate_reads_for_snp(params)
 
 class CNVSimulator:
@@ -500,27 +514,39 @@ class CNVSimulator:
                     end = cnvs.index[index].split(':')[1].split('-')[1]
                     out_bed.write('\t'.join(['c', chrom, start, end, str(value), str(np.random.randint(1, value+1))])+'\n')
     
-    def _sim_fasta_for_cnv(self, params):
-        tasklogger.log_info('start generating fasta file...')
+    def _generate_reads_for_cnv(self, params):
         for sample in self.samples:
+            tasklogger.log_info('start generating reads for '+sample+'...')
             fasta_file = os.path.join(params.out_dir, sample + '-ref.fasta')
-            self.samples[sample]['fasta_file'] = fasta_file
+            # self.samples[sample]['fasta_file'] = fasta_file
             command = 'scssim simuvars -r {0} -v {1} -o {2}'.format(params.ref_file, self.samples[sample]['bed_file'], fasta_file)
             code = os.system(command)
             if code != 0:
                 tasklogger.log_error('Errors happend when simulating varations with cnv file...')
 
-    def _generate_reads_for_cnv(self, params):
-        tasklogger.log_info('start genrating reads with fastq format...')
-        for sample in self.samples:
+            # generate reads
             out_prefix = os.path.join(params.out_dir, sample)
-            command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(self.samples[sample]['fasta_file'], params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
+            command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(fasta_file, params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
             code = os.system(command)
             if code != 0:
                 tasklogger.log_error('Errors happend when simulating reads...')
 
+            # clean sample fasta and bed file
+            os.remove(fasta_file)
+            os.remove(self.samples[sample]['bed_file'])
+            
+
+    # def _generate_reads_for_cnv(self, params):
+    #     tasklogger.log_info('start genrating reads with fastq format...')
+    #     for sample in self.samples:
+    #         out_prefix = os.path.join(params.out_dir, sample)
+    #         command = 'scssim genreads -i {0} -m {1} -l {2} -c {3} -s {4} -t {5} -o {6}'.format(self.samples[sample]['fasta_file'], params.profile_file, params.layout, params.coverage, params.isize, params.threads, out_prefix)
+    #         code = os.system(command)
+    #         if code != 0:
+    #             tasklogger.log_error('Errors happend when simulating reads...')
+
     def sim_samples(self, params):
         self._generate_cnv_matrix(params)
         self._generate_cnv_bed_file(params)
-        self._sim_fasta_for_cnv(params)
+        # self._sim_fasta_for_cnv(params)
         self._generate_reads_for_cnv(params)
