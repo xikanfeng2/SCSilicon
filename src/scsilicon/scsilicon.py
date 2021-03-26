@@ -17,8 +17,11 @@ def download_ref_data(params):
     url = 'http://hgdownload.soe.ucsc.edu/goldenPath/{0}/bigZips/{0}.fa.gz'.format(params.ref)
     wget.download(url, out=ref_path)
 
-    command = 'gunzip ' + os.path.join(ref_path, params.ref + '.fa.gz')
-    os.system(command)
+    # download each chrom fasta file
+    chroms = ['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY']
+    for chrom in chroms:
+        url = 'http://hgdownload.cse.ucsc.edu/goldenpath/{0}/chromosomes/{1}.fa.gz'.format(params.ref, chrom)
+        wget.download(url, out=ref_path)
 
     #download chrome size file
     url = 'http://hgdownload.soe.ucsc.edu/goldenPath/{0}/bigZips/{0}.chrom.sizes'.format(params.ref)
@@ -41,7 +44,10 @@ class SCSiliconParams:
         self.coverage = coverage
         self.isize = isize
         self.threads = threads
-        self.ref_file = os.path.join(self.data_dir, self.ref, self.ref + '.fa')
+        if self.chrom != 'all':
+            self.ref_file = os.path.join(self.data_dir, self.ref, self.chrom + '.fa.gz')
+        else:
+            self.ref_file = os.path.join(self.data_dir, self.ref, self.ref + '.fa.gz')
         self.chrom_size_file = os.path.join(self.data_dir, self.ref, self.ref + '.chrom.sizes')
         self.dbsnp_file = os.path.join(self.data_dir, self.ref, 'dbsnp.'+ self.ref +'.bed')
         self.profile_file = os.path.join(utils.root_path(), 'data/normal.profile')
@@ -244,6 +250,7 @@ class SNPSimulator:
             
             # clean sample fasta file
             os.remove(fasta_file)
+            os.remove(fasta_file+'.fai')
     
     # def _generate_reads_for_snp(self, params):
     #     tasklogger.log_info('start genrating reads with fastq format...')
@@ -533,8 +540,8 @@ class CNVSimulator:
 
             # clean sample fasta and bed file
             os.remove(fasta_file)
+            os.remove(fasta_file+'.fai')
             os.remove(self.samples[sample]['bed_file'])
-            
 
     # def _generate_reads_for_cnv(self, params):
     #     tasklogger.log_info('start genrating reads with fastq format...')
