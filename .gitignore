@@ -4,3 +4,4 @@ src/scsilicon/lib
 SCSilicon.egg-info/
 build/
 dist/
+experiments/
