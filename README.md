@@ -1,6 +1,8 @@
 # SCSilicon
 
-SCSilicon is a Python package that simulate single-cell DNA sequencing data.
+SCSilicon is a tool for synthetic single-cell DNA sequencing data generation.
+
+![overview.png](overview.png)
 
 ## 1. Pre-requirements
 * python3
