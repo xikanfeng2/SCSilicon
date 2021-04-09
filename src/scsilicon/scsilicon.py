@@ -442,11 +442,10 @@ class CNVSimulator:
         if self.cluster_no < 1 or self.cluster_no > self.cell_no*(1-self.normal_frac) - 1:
             self.cluster_no = 1
         if self.cluster_no == 1:
-            clusters  = []
+            clusters  = [0, self.cell_no]
         else:
             clusters = np.sort(np.random.choice(range(int(self.cell_no*self.normal_frac)+1, self.cell_no-1), self.cluster_no - 2, replace=False))
-        clusters = [0] + [int(self.cell_no*self.normal_frac)] + list(clusters) + [self.cell_no]
-        print(clusters)
+            clusters = [0] + [int(self.cell_no*self.normal_frac)] + list(clusters) + [self.cell_no]
         cluster_count = 1
         for i in range(len(clusters) - 1):
             start = clusters[i]
