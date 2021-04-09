@@ -810,7 +810,7 @@ class SNVSimulator:
                 with open(snv_file, 'w') as output:
                     for snv in snvs:
                         alleles = np.random.choice(['a','t','g','c'],2, replace=False)
-                        output.write('\t'.join(['s', chrom, str(snv), alleles[0], alleles[1], np.random.choice,np.random.choice(['homo', 'het'])])+'\n')
+                        output.write('\t'.join(['s', chrom, str(snv), alleles[0], alleles[1], np.random.choice(['homo', 'het'])])+'\n')
             else:
                 with open(snv_file, 'w') as output:
                     for i in range(self.snv_no):
@@ -818,7 +818,7 @@ class SNVSimulator:
                         chrom_size = chroms[chrom]
                         snv = np.random.choice(range(1, chrom_size))
                         alleles = np.random.choice(['a','t','g','c'],2, replace=False)
-                        output.write('\t'.join(['s', chrom, str(snv), alleles[0], alleles[1], np.random.choice,np.random.choice(['homo', 'het'])])+'\n')
+                        output.write('\t'.join(['s', chrom, str(snv), alleles[0], alleles[1], np.random.choice(['homo', 'het'])])+'\n')
     
     def _generate_reads_for_snv(self, params):
         for sample in self.samples:
