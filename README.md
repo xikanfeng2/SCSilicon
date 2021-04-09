@@ -53,6 +53,14 @@ scs.download_ref_data(params)
 snp_simulator = scs.SNPSimulator()
 snp_simulator.sim_samples(params)
 
+# simulate snv samples
+snv_simulator = scs.SNVSimulator()
+snv_simulator.sim_samples(params)
+
+# simulate indel samples
+indel_simulator = scs.IndelSimulator()
+indel_simulator.sim_samples(params)
+
 # simulate cnv samples
 cnv_simulator = scs.CNVSimulator()
 cnv_simulator.sim_samples(params)
@@ -76,7 +84,7 @@ params = scs.SCSiliconParams()
 * `chrom`: string, optional, default: chr22.<br>
     The chromosome number for reads generation:  all or a specific chromosome
 
-* `layout`: string, optional, default: 'PE'.<br>
+* `layout`: string, optional, default: 'SE'.<br>
     The reads laryout: PE or SE (PD for paired-end and SE for single-end)
 
 * `coverage`: int, optional, default: 5.<br>
@@ -122,13 +130,14 @@ snp_simulator.sim_samples(params)
 
 ### 5.1 All parameters in `SNPSimulator` object
 
-* `sample_no`: int, optional, default: 1.<br>
-    The sample number for this simulation
+* `cell_no`: int, optional, default: 1.<br>
+    The cell number for this simulation
 
-* `frac`: float, optional, default: 0.01.<br>
-    The fraction of SNP extracted from dbsnp file
+* snp_no : int, optional, default: 1000<br>
+    The SNP number of each sample
+        
 
-For each sample, `SNPSimulator` will randomly select a specific percentage of SNPs from dbSNP file and `frac` parameter can be used to control this percentage.
+For each sample, `SNPSimulator` will randomly select a total number of SNPs from dbSNP file and `snp_no` parameter can be used to control this total number.
 
 ### 5.2 Getting and setting
 Similar to `SCSiliconParams`, `SNPSimulator` uses the functions `get_params` and `set_params` to get or set parameters.
@@ -138,12 +147,12 @@ Similar to `SCSiliconParams`, `SNPSimulator` uses the functions `get_params` and
 ```Python
 snp_simulator.sim_samples()
 ```
-If you want to simulate `multiple` samples once, you can use the `sample_no` parameter to contorl this.
+If you want to simulate `multiple` samples once, you can use the `cell_no` parameter to contorl this.
 ```Python
-snp_simulator.set_params(sample_no=10)
+snp_simulator.set_params(cell_no=10)
 
 # or set the parameter when creating the object
-snp_simulator = scs.SNPSimulator(sample_no=10)
+snp_simulator = scs.SNPSimulator(cell_no=10)
 
 # generating reads
 snp_simulator.sim_samples(params)
@@ -169,8 +178,8 @@ cnv_simulator.sim_samples(params)
 
 ### 6.1 All parameters in `CNVimulator` object
 
-* `sample_no`: int, optional, default: 1.<br>
-    The sample number for this simulation
+* `cell_no`: int, optional, default: 1.<br>
+    The cell number for this simulation
 
 * `bin_len`: int, optional, default: 500000.<br>
     The fixed bin length
@@ -207,12 +216,12 @@ cnv_simulator.sim_samples(params)
 ```
 Above code will split each chromosome to 8 segments and this is useful for segmentation experiments of single cell CNV detection tools.
 
-If you want to simulate `multiple` samples once, you can use the `sample_no` parameter to contorl this.
+If you want to simulate `multiple` samples once, you can use the `cell_no` parameter to contorl this.
 ```Python
-cnv_simulator.set_params(sample_no=10)
+cnv_simulator.set_params(cell_no=10)
 
 # or set the parameter when creating the object
-cnv_simulator = scs.SNPSimulator(sample_no=10)
+cnv_simulator = scs.SNPSimulator(cell_no=10)
 
 # generating reads
 cnv_simulator.sim_samples(params)
@@ -249,6 +258,39 @@ This function will save the heatmap with pdf format to the file named as `out_pr
 
 ![cnv heatmap](cnv-heatmap.png)
 
+
+## 7. Simulating reads for SNVs using `SNVSimulator` object
+Once we have a set of parameters we are happy with we can use `SNVSimulator` to simulate samples with SNVs in it. 
+ ```Python
+snv_simulator = scs.SNVSimulator()
+snv_simulator.sim_samples(params)
+```
+### 7.1 All parameters in `SNVSimulator` object
+
+* `cell_no`: int, optional, default: 1.<br>
+    The cell number for this simulation
+
+* `snv_no`: int, optional, default: 1000<br>
+    The SNV number of each sample
+
+        
+
+## 8. Simulating reads for Indels using `IndelSimulator` object
+Once we have a set of parameters we are happy with we can use `IndelSimulator` to simulate samples with Indels in it. 
+ ```Python
+indel_simulator = scs.IndelSimulator()
+indel_simulator.sim_samples(params)
+```
+### 8.1 All parameters in `IndelSimulator` object
+
+* `cell_no`: int, optional, default: 1.<br>
+    The cell number for this simulation
+
+* `in_no`: int, optional, default: 1000<br>
+    The insertion number of each sample
+
+* `del_no`: int, optional, default: 1000<br>
+    The deletion number of each sample
 
 ## Cite us
 todo
