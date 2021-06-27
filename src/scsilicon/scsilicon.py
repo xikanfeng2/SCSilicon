@@ -278,7 +278,8 @@ class CNVSimulator:
         self.normal_frac = normal_frac
         self.noise_frac = noise_frac
         self._check_params()
-        self.cnv = None
+        self.noise_cnv = None
+        self.clean_cnv = None
         self.segments = None
         self.clusters = None
         self._check_params()
@@ -487,6 +488,8 @@ class CNVSimulator:
                 }], ignore_index=True)
         cnv.iloc[:,0:max(0, round(self.cell_no*self.normal_frac))] = 2
 
+        self.clean_cnv = cnv.T.copy()
+        self.clean_cnv = self.clean_cnv.astype('int32')
         #add noise
         total_values = cnv.shape[0] * cnv.shape[1]
         noise = np.random.randint(0, total_values+1, size=round(total_values*self.noise_frac))
@@ -495,11 +498,12 @@ class CNVSimulator:
 
         cnv = cnv.T
         cnv = cnv.astype('int32')
-        self.cnv = cnv
+        self.noise_cnv = cnv
         self.segments = segments
         self.clusters = clusters_file
 
-        self.cnv.to_csv(os.path.join(params.out_dir, 'cnv.csv'))
+        self.clean_cnv.to_csv(os.path.join(params.out_dir, 'clean_cnv.csv'))
+        self.noise_cnv.to_csv(os.path.join(params.out_dir, 'noise_cnv.csv'))
         self.segments.to_csv(os.path.join(params.out_dir, 'segments.csv'))
         self.clusters.to_csv(os.path.join(params.out_dir, 'clusters.csv'))
 
