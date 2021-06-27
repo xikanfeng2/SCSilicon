@@ -278,7 +278,7 @@ class CNVSimulator:
         self.normal_frac = normal_frac
         self.noise_frac = noise_frac
         self._check_params()
-        self.noise_cnv = None
+        self.cnv = None
         self.clean_cnv = None
         self.segments = None
         self.clusters = None
@@ -498,12 +498,12 @@ class CNVSimulator:
 
         cnv = cnv.T
         cnv = cnv.astype('int32')
-        self.noise_cnv = cnv
+        self.cnv = cnv
         self.segments = segments
         self.clusters = clusters_file
 
         self.clean_cnv.to_csv(os.path.join(params.out_dir, 'clean_cnv.csv'))
-        self.noise_cnv.to_csv(os.path.join(params.out_dir, 'noise_cnv.csv'))
+        self.cnv.to_csv(os.path.join(params.out_dir, 'noise_cnv.csv'))
         self.segments.to_csv(os.path.join(params.out_dir, 'segments.csv'))
         self.clusters.to_csv(os.path.join(params.out_dir, 'clusters.csv'))
 
