@@ -295,7 +295,7 @@ indel_simulator.sim_samples(params)
     The deletion number of each sample
 
 ## Cite us
-todo
+Feng, X., Chen, L. SCSilicon: a tool for synthetic single-cell DNA sequencing data generation. BMC Genomics 23, 359 (2022). [Full text](https://doi.org/10.1186/s12864-022-08566-w)
 
 ## Help
 If you have any questions or require assistance using SCSilicon, please contact us with fxk@nwpu.edu.cn.
